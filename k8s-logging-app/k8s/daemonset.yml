@@ -28,7 +28,7 @@ spec:
           - containerPort: 2020
         env:
         - name: FLUENTD_HOST
-          value: "0.0.0.0" #YOUR FLUENTD HOST IP
+          value: "host.docker.internal"   #"0.0.0.0" #YOUR FLUENTD HOST IP
         - name: FLUENTD_PORT
           value: "24224"        
         volumeMounts:

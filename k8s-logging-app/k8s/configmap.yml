@@ -9,13 +9,10 @@ metadata:
 data:
   fluent-bit.conf: |
     [SERVICE]
-        Flush         1
+        Flush         5
         Log_Level     info
-        Daemon        off
         Parsers_File  parsers.conf
-        HTTP_Server   On
-        HTTP_Listen   0.0.0.0
-        HTTP_Port     2020
+        Daemon        off
         
     @INCLUDE all_container_input.conf
     @INCLUDE output-fleuntd-forward.conf
@@ -25,7 +22,7 @@ data:
         Tag               <container_name>-<namespace_name>
         Tag_Regex         (?<pod_name>[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?<namespace_name>[^_]+)_(?<container_name>.+)-
         Parser            docker
-        Path              /var/log/containers/*.log
+        Path              /var/log/containers/*
         DB                /var/log/flb_kube.db
         Mem_Buf_Limit     5MB
         Skip_Long_Lines   On
@@ -38,8 +35,6 @@ data:
         Host          ${FLUENTD_HOST}
         Port          ${FLUENTD_PORT}
         Retry_Limit   False
-        tls           Off
-        tls.verify    Off
   parsers.conf: |
     [PARSER]
         Name        json
