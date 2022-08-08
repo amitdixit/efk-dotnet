@@ -1,0 +1,25 @@
+elastic on local docker
+
+1. docker network create elastic-network[Some kind of network name]
+2. docker run -d --name elasticsearch --net elastic-network -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:8.3.3
+3. docker run -d --name kibana --net elastic-network -p 5601:5601 kibana:8.3.3
+4. Get token from elatic by running th command in he bash in the "bin" [ elasticsearch-create-enrollment-token --scope kibana]
+5. Verify token in Kibana by running the command [kibana-verification-code]
+6. Reset the credential by using elasticsearch-reset-password -u elastic -i
+
+
+fluentd custom image since we need to install elasticsearch-plugin
+docker run --name fluentd -p 24224:24224 -p 24224:24224/udp -u root fluentd_fluentd:latest
+
+docker run --name fluentd -p 24224:24224 -p 24224:24224/udp -u root theamitdixit/custom_fluentd:latest
+
+
+kubectl apply -f deployment.yml
+kubectl apply -f service.yml
+kubectl apply -f namespace.yml
+kubectl apply -f serviceaccount.yml
+kubectl apply -f clusterrole.yml
+kubectl apply -f clusterrolebinding.yml
+kubectl apply -f configmap.yml
+kubectl apply -f daemonset.yml
+
