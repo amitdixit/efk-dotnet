@@ -1,0 +1,55 @@
+#7 For Fluent Bit which allows us to decouple environment-specific configuration from our container images
+#[INPUT]we are using the "tail" plugin of Fluent Bit which allows us to monitor several text files and reads every matched file in the "Path" pattern
+#[OUTPUT]we are sending captured logs to Fluentd with "forward" plugin
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         1
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+        HTTP_Server   On
+        HTTP_Listen   0.0.0.0
+        HTTP_Port     2020
+        
+    @INCLUDE all_container_input.conf
+    @INCLUDE output-fleuntd-forward.conf
+  all_container_input.conf: |
+    [INPUT]
+        Name              tail
+        Tag               <container_name>-<namespace_name>
+        Tag_Regex         (?<pod_name>[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)_(?<namespace_name>[^_]+)_(?<container_name>.+)-
+        Parser            docker
+        Path              /var/log/containers/*.log
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+        Refresh_Interval  5
+        Docker_Mode       On
+  output-fleuntd-forward.conf: |
+    [OUTPUT]
+        Name          forward
+        Match         *
+        Host          ${FLUENTD_HOST}
+        Port          ${FLUENTD_PORT}
+        Retry_Limit   False
+        tls           Off
+        tls.verify    Off
+  parsers.conf: |
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    time
+        Time_Format %d/%b/%Y:%H:%M:%S %z
+    [PARSER]
+        Name        docker
+        Format      json
+        #Time_Key   time
+        Time_Key    @timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep   Off # on

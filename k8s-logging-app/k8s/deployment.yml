@@ -1,0 +1,32 @@
+#1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-app
+  template:
+    metadata:
+      labels:
+        app: student-app
+    spec:
+      containers:
+      - image: theamitdixit/student-app:latest
+        name: student-app
+        ports:
+        - containerPort: 80
+          name: student-app
+        - containerPort: 443
+          name: student-app-tls
+        - containerPort: 8080
+          name: student-app-lcl
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"

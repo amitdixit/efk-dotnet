@@ -1,0 +1,5 @@
+#3.To install Fluent Bit as a daemonset on k8s. Create a new namespace called logging
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: logging
